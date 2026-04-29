@@ -5,23 +5,9 @@ pydantic>=2.9
 pillow>=10.0
 numpy>=1.26
 
-# ── Motor Primario: Gemini Vision API ───────────────────────────
+# ── Motor: Gemini Vision API ─────────────────────────────────────
 google-genai>=1.0
-
-# ── Fallback: ML / Deep Learning (solo se usan si Gemini falla) ─
-torch>=2.1
-torchvision>=0.16
-timm>=0.9
-open-clip-torch>=2.24
-
-# ── Fallback Filtro 5: Liveness local ──────────────────────────
-opencv-python-headless>=4.8
-mediapipe>=0.10
-onnxruntime>=1.17
-scipy>=1.11
-
-# ── RunPod (opcional) ───────────────────────────────────────────
-# runpod>=1.6
+python-dotenv>=1.0
 
 # ── Tests ───────────────────────────────────────────────────────
 pytest>=8.0

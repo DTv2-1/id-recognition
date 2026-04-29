@@ -7,6 +7,9 @@ Fallback: modelos locales (PyTorch/ONNX).
 import logging
 from contextlib import asynccontextmanager
 
+from dotenv import load_dotenv
+load_dotenv()  # carga .env desde la raíz del proyecto
+
 from fastapi import FastAPI, HTTPException
 
 from app.pipeline import VerificationPipeline

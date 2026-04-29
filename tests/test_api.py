@@ -71,105 +71,25 @@ class TestGeminiEngine:
             engine.initialize()
         assert engine.available is False
 
-    def test_parse_response_valid_json(self) -> None:
-        from app.filters.gemini_engine import _parse_gemini_response
-
-        result = _parse_gemini_response('{"detected": true, "confidence": 85.5, "reason": "moiré"}')
-        assert result is not None
-        assert result["detected"] is True
-        assert result["confidence"] == 85.5
-
-    def test_parse_response_wrapped_markdown(self) -> None:
-        from app.filters.gemini_engine import _parse_gemini_response
-
-        text = '```json\n{"detected": false, "confidence": 90, "reason": "clean"}\n```'
-        result = _parse_gemini_response(text)
-        assert result is not None
-        assert result["detected"] is False
-
-    def test_parse_response_garbage(self) -> None:
-        from app.filters.gemini_engine import _parse_gemini_response
-
-        result = _parse_gemini_response("This is not JSON at all")
-        assert result is None
-
-    def test_analyze_filter_returns_none_when_disabled(self) -> None:
-        from app.filters.gemini_engine import GeminiEngine
+    def test_analyze_all_returns_nones_when_disabled(self) -> None:
+        from app.filters.gemini_engine import GeminiEngine, FILTER_NAMES
 
         engine = GeminiEngine()
         # Sin inicializar → no disponible
         img = Image.new("RGB", (100, 100))
-        result = engine.analyze_filter(img, "screen_capture")
-        assert result is None
+        result = engine.analyze_all(img)
+        assert set(result.keys()) == set(FILTER_NAMES)
+        assert all(v is None for v in result.values())
 
 
 # ── Filter unit tests (fallback local) ─────────────────────────
-class TestScreenCaptureFilter:
-    def test_predict_returns_filter_result(self) -> None:
-        from app.filters.screen_capture import ScreenCaptureDetector
-
-        detector = ScreenCaptureDetector()
-        img = Image.new("RGB", (224, 224), color=(100, 120, 140))
-        result = detector.predict(img)
-        assert isinstance(result, FilterResult)
-        assert result.answer in ("yes", "no")
-        assert 0 <= result.percentageOfConfidence <= 100
-
-
-class TestPrintedPaperFilter:
-    def test_predict_returns_filter_result(self) -> None:
-        from app.filters.printed_paper import PrintedPaperDetector
-
-        detector = PrintedPaperDetector()
-        img = Image.new("RGB", (380, 380), color=(200, 200, 200))
-        result = detector.predict(img)
-        assert isinstance(result, FilterResult)
-        assert result.answer in ("yes", "no")
-        assert 0 <= result.percentageOfConfidence <= 100
-
-
-class TestForgeryDetector:
-    def test_predict_returns_filter_result(self) -> None:
-        from app.filters.forgery_detection import ForgeryDetector
-
-        detector = ForgeryDetector()
-        img = Image.new("RGB", (256, 256), color=(180, 180, 180))
-        result = detector.predict(img)
-        assert isinstance(result, FilterResult)
-        assert result.answer in ("yes", "no")
-        assert 0 <= result.percentageOfConfidence <= 100
-
-
-class TestAIDetector:
-    def test_predict_returns_filter_result(self) -> None:
-        from app.filters.ai_detection import AIAlteredDetector
-
-        detector = AIAlteredDetector()
-        img = Image.new("RGB", (224, 224), color=(150, 150, 150))
-        result = detector.predict(img)
-        assert isinstance(result, FilterResult)
-        assert result.answer in ("yes", "no")
-        assert 0 <= result.percentageOfConfidence <= 100
-
-
-class TestLivenessDetector:
-    def test_predict_returns_filter_result(self) -> None:
-        from app.filters.liveness import LivenessDetector
-
-        detector = LivenessDetector()
-        img = Image.new("RGB", (256, 256), color=(170, 170, 170))
-        screen = FilterResult(answer="no", percentageOfConfidence=90.0)
-        printed = FilterResult(answer="no", percentageOfConfidence=85.0)
-        result = detector.predict(img, screen, printed)
-        assert isinstance(result, FilterResult)
-        assert result.answer in ("yes", "no")
-        assert 0 <= result.percentageOfConfidence <= 100
+# Eliminados: ya no hay filtros locales, todo va por Gemini unificado.
 
 
 # ── Pipeline tests ─────────────────────────────────────────────
 class TestPipeline:
-    def test_pipeline_falls_back_to_local_without_gemini(self) -> None:
-        """Sin GEMINI_API_KEY, el pipeline debe usar modelos locales."""
+    def test_pipeline_handles_missing_gemini(self) -> None:
+        """Sin GEMINI_API_KEY el motor queda no-disponible (no crashea)."""
         from app.pipeline import VerificationPipeline
 
         pipeline = VerificationPipeline()

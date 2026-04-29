@@ -64,12 +64,17 @@ LIVENESS_WEIGHTS = LivenessWeights()
 # ── Veredicto final ────────────────────────────────────────────
 @dataclass
 class VerdictWeights:
-    """Pesos para agregar los 5 filtros en el veredicto final."""
-    screen_capture: float = 0.20
-    printed_paper: float = 0.20
-    superimposed_elements: float = 0.25
-    ai_altered: float = 0.20
-    liveness: float = 0.15
+    """Pesos para agregar los 5 filtros en el veredicto final.
+
+    El filtro 5 (liveness) ya es el score consolidado de los otros 4,
+    por lo que recibe el peso dominante. Los detectores individuales
+    solo ajustan ligeramente el resultado.
+    """
+    screen_capture: float = 0.10
+    printed_paper: float = 0.10
+    superimposed_elements: float = 0.10
+    ai_altered: float = 0.10
+    liveness: float = 0.60
 
 VERDICT_WEIGHTS = VerdictWeights()
 
